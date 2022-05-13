@@ -141,8 +141,20 @@ on_client_check_acl(_ClientInfo = #{clientid := ClientId}, Topic, PubSub, Result
     {ok, Result}.
 
 on_client_subscribe(#{clientid := ClientId}, _Properties, TopicFilters, _Env) ->
-    io:format("Client(~s) will subscribe: ~p~n", [ClientId, TopicFilters]),
-    {ok, TopicFilters}.
+    % io:format("Client(~s) will subscribe: ~p~n", [ClientId, TopicFilters]),
+    {M, S, _} = os:timestamp(),
+    Json = jsx:encode([
+            % {type,<<"disconnected">>},
+            {clientid,ClientId},
+            {topic,TopicFilters},
+            {ts,M * 1000000 + S},
+            {cluster_node,node()}
+    ]),
+    % ekaf:produce_async(<<"linkstatus">>, Json).
+    PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
+                {ok, crypto:rand_uniform(0, PartitionsCount)}
+                end,
+    brod:produce_sync(brod_client_1, <<"linksub">>, PartitionFun, <<>>, Json).
 
 on_client_unsubscribe(#{clientid := ClientId}, _Properties, TopicFilters, _Env) ->
     io:format("Client(~s) will unsubscribe ~p~n", [ClientId, TopicFilters]),
