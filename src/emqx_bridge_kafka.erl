@@ -146,7 +146,7 @@ on_client_subscribe(#{clientid := ClientId}, _Properties, TopicFilters, _Env) ->
     Json = jsx:encode([
             % {type,<<"disconnected">>},
             {clientid,ClientId},
-            % {topic,TopicFilters},
+            {topic,TopicFilters},
             {ts,M * 1000000 + S},
             {cluster_node,node()}
     ]),
