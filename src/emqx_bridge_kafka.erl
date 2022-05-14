@@ -154,7 +154,7 @@ on_client_subscribe(#{clientid := ClientId}, _Properties, TopicFilters, _Env) ->
     PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
                 {ok, crypto:rand_uniform(0, PartitionsCount)}
                 end,
-    brod:produce_sync(brod_client_1, <<"linksub">>, PartitionFun, <<>>, Json).
+    brod:produce_sync(brod_client_1, <<"linksubscribe">>, PartitionFun, <<>>, Json).
 
 on_client_unsubscribe(#{clientid := ClientId}, _Properties, TopicFilters, _Env) ->
     io:format("Client(~s) will unsubscribe ~p~n", [ClientId, TopicFilters]),
