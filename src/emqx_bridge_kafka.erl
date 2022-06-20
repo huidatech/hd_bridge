@@ -70,10 +70,10 @@ load(Env) ->
     % emqx:hook('session.discarded',   {?MODULE, on_session_discarded, [Env]}),
     % emqx:hook('session.takeovered',  {?MODULE, on_session_takeovered, [Env]}),
     % emqx:hook('session.terminated',  {?MODULE, on_session_terminated, [Env]}),
-    emqx:hook('message.publish',     {?MODULE, on_message_publish, [Env]}).
-    % emqx:hook('message.delivered',   {?MODULE, on_message_delivered, [Env]}),
-    % emqx:hook('message.acked',       {?MODULE, on_message_acked, [Env]}),
-    % emqx:hook('message.dropped',     {?MODULE, on_message_dropped, [Env]}).
+    emqx:hook('message.publish',     {?MODULE, on_message_publish, [Env]}),
+    emqx:hook('message.delivered',   {?MODULE, on_message_delivered, [Env]}),
+    emqx:hook('message.acked',       {?MODULE, on_message_acked, [Env]}),
+    emqx:hook('message.dropped',     {?MODULE, on_message_dropped, [Env]}).
 
 %%--------------------------------------------------------------------
 %% Client Lifecircle Hooks
@@ -257,11 +257,35 @@ on_message_dropped(Message, _By = #{node := Node}, Reason, _Env) ->
 on_message_delivered(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
     io:format("Message delivered to client(~s): ~s~n",
               [ClientId, emqx_message:format(Message)]),
+    {M, S, _} = os:timestamp(),
+    Json = jsx:encode([
+            {clientid,ClientId},
+            {ts,M * 1000000 + S},
+            {msg,Message}
+    ]),
+    % ekaf:produce_async(<<"linkstatus">>, Json).
+    PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
+                {ok, crypto:rand_uniform(0, PartitionsCount)}
+                end,
+    brod:produce_sync(brod_client_1, <<"linkdelivered">>, PartitionFun, <<>>, Json),
     {ok, Message}.
 
 on_message_acked(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
     io:format("Message acked by client(~s): ~s~n",
-              [ClientId, emqx_message:format(Message)]).
+              [ClientId, emqx_message:format(Message)]),
+    {M, S, _} = os:timestamp(),
+    Json = jsx:encode([
+            {clientid,ClientId},
+            {ts,M * 1000000 + S},
+            {msg,Message}
+    ]),
+    % ekaf:produce_async(<<"linkstatus">>, Json).
+    PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
+                {ok, crypto:rand_uniform(0, PartitionsCount)}
+                end,
+    brod:produce_sync(brod_client_1, <<"linkdroped">>, PartitionFun, <<>>, Json),
+    {ok, Message}.
+
 
 %% Called when the plugin application stop
 unload() ->
@@ -281,10 +305,10 @@ unload() ->
     % emqx:unhook('session.discarded',   {?MODULE, on_session_discarded}),
     % emqx:unhook('session.takeovered',  {?MODULE, on_session_takeovered}),
     % emqx:unhook('session.terminated',  {?MODULE, on_session_terminated}),
-    emqx:unhook('message.publish',     {?MODULE, on_message_publish}).
-    % emqx:unhook('message.delivered',   {?MODULE, on_message_delivered}),
-    % emqx:unhook('message.acked',       {?MODULE, on_message_acked}),
-    % emqx:unhook('message.dropped',     {?MODULE, on_message_dropped}).
+    emqx:unhook('message.publish',     {?MODULE, on_message_publish}),
+    emqx:unhook('message.delivered',   {?MODULE, on_message_delivered}),
+    emqx:unhook('message.acked',       {?MODULE, on_message_acked}),
+    emqx:unhook('message.dropped',     {?MODULE, on_message_dropped}).
 
 %% Init kafka server parameters
 % ekaf_init(_Env) ->
