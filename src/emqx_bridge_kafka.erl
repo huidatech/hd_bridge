@@ -260,8 +260,7 @@ on_message_delivered(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
     {M, S, _} = os:timestamp(),
     Json = jsx:encode([
             {clientid,ClientId},
-            {ts,M * 1000000 + S},
-            {msg,Message}
+            {ts,M * 1000000 + S}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
     PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
@@ -276,8 +275,8 @@ on_message_acked(_ClientInfo = #{clientid := ClientId}, Message, _Env) ->
     {M, S, _} = os:timestamp(),
     Json = jsx:encode([
             {clientid,ClientId},
-            {ts,M * 1000000 + S},
-            {msg,Message}
+            {ts,M * 1000000 + S}
+            % {msg,Message}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
     PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
