@@ -105,7 +105,8 @@ on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
             {type,<<"connected">>},
             {clientid,ClientId},
             {ts,M * 1000000 + S},
-            {cluster_node,node()}
+            {cluster_node,node()},
+            {client_info,ConnInfo}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
     PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
