@@ -103,9 +103,10 @@ on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
     {M, S, _} = os:timestamp(),
     Json = jsx:encode([
             {type,<<"connected">>},
-            {clientid,ClientId},
+            {client_id,ClientId},
             {ts,M * 1000000 + S},
             {cluster_node,node()},
+            {conn_info,ConnInfo},
             {client_info,ConnInfo}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
