@@ -122,10 +122,12 @@ on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInf
     
     Json = jsx:encode([
             {type,<<"disconnected">>},
-            {clientid,ClientId},
+            {client_id,ClientId},
             {reasoncode,ReasonCode},
             {ts,M * 1000000 + S},
-            {cluster_node,node()}
+            {cluster_node,node()},
+            {conn_info,ConnInfo},
+            {client_info,ConnInfo}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
     PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
