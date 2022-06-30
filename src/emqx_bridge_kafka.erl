@@ -101,11 +101,13 @@ on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
     io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
               [ClientId, ClientInfo, ConnInfo]),
     {M, S, _} = os:timestamp(),
+    Peerhost=ClientInfo#peerhost,
     Json = jsx:encode([
             {type,<<"connected">>},
             {client_id,ClientId},
             {ts,M * 1000000 + S},
-            {cluster_node,node()}
+            {cluster_node,node()},
+            {client_info,Peerhost}
             % {conn_info,ConnInfo},
             % {client_info,ClientInfo}
     ]),
@@ -126,7 +128,7 @@ on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInf
             {reasoncode,ReasonCode},
             {ts,M * 1000000 + S},
             {cluster_node,node()}
-            % {conn_info,ConnInfo},
+            % {client_info,ClientInfo#peerhost}
             % {client_info,ClientInfo}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
