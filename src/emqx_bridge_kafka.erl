@@ -98,16 +98,16 @@ on_client_connack(ConnInfo = #{clientid := ClientId}, Rc, Props, _Env) ->
     {ok, Props}.
 
 on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
-    % io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
-    %           [ClientId, ClientInfo, ConnInfo]),
+    io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
+              [ClientId, ClientInfo, ConnInfo]),
     {M, S, _} = os:timestamp(),
     Json = jsx:encode([
             {type,<<"connected">>},
             {client_id,ClientId},
             {ts,M * 1000000 + S},
-            {cluster_node,node()},
-            {conn_info,ConnInfo},
-            {client_info,ClientInfo}
+            {cluster_node,node()}
+            % {conn_info,ConnInfo},
+            % {client_info,ClientInfo}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
     PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
@@ -116,8 +116,8 @@ on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
     brod:produce_sync(brod_client_1, <<"linkstatus">>, PartitionFun, <<>>, Json).
 
 on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
-    % io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
-    %           [ClientId, ReasonCode, ClientInfo, ConnInfo]),
+    io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
+              [ClientId, ReasonCode, ClientInfo, ConnInfo]),
     {M, S, _} = os:timestamp(),
     
     Json = jsx:encode([
@@ -125,9 +125,9 @@ on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInf
             {client_id,ClientId},
             {reasoncode,ReasonCode},
             {ts,M * 1000000 + S},
-            {cluster_node,node()},
-            {conn_info,ConnInfo},
-            {client_info,ClientInfo}
+            {cluster_node,node()}
+            % {conn_info,ConnInfo},
+            % {client_info,ClientInfo}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
     PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
