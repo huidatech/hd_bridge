@@ -106,7 +106,7 @@ on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
             {client_id,ClientId},
             {ts,M * 1000000 + S},
             {cluster_node,node()},
-            {ip,ConnInfo:get(peerhost)}
+            {ip,maps.get(peerhost,ConnInfo)}
             % {client_info,ClientInfo}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
