@@ -105,8 +105,8 @@ on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
             {type,<<"connected">>},
             {client_id,ClientId},
             {ts,M * 1000000 + S},
-            {cluster_node,node()}
-            % {conn_info,ConnInfo},
+            {cluster_node,node()},
+            {conn_info,ConnInfo}
             % {client_info,ClientInfo}
     ]),
     % ekaf:produce_async(<<"linkstatus">>, Json).
