@@ -71,9 +71,9 @@ load(Env) ->
     % emqx:hook('session.takeovered',  {?MODULE, on_session_takeovered, [Env]}),
     % emqx:hook('session.terminated',  {?MODULE, on_session_terminated, [Env]}),
     emqx:hook('message.publish',     {?MODULE, on_message_publish, [Env]}),
-    emqx:hook('message.delivered',   {?MODULE, on_message_delivered, [Env]}),
-    emqx:hook('message.acked',       {?MODULE, on_message_acked, [Env]}),
-    emqx:hook('message.dropped',     {?MODULE, on_message_dropped, [Env]}).
+    % emqx:hook('message.delivered',   {?MODULE, on_message_delivered, [Env]}),
+    % emqx:hook('message.acked',       {?MODULE, on_message_acked, [Env]}),
+    % emqx:hook('message.dropped',     {?MODULE, on_message_dropped, [Env]}).
 
 %%--------------------------------------------------------------------
 %% Client Lifecircle Hooks
@@ -98,8 +98,8 @@ on_client_connack(ConnInfo = #{clientid := ClientId}, Rc, Props, _Env) ->
     {ok, Props}.
 
 on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
-    io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
-              [ClientId, ClientInfo, ConnInfo]),
+    % io:format("Client(~s) connected, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
+    %           [ClientId, ClientInfo, ConnInfo]),
     {M, S, _} = os:timestamp(),
     Json = jsx:encode([
             {type,<<"connected">>},
@@ -116,8 +116,8 @@ on_client_connected(ClientInfo = #{clientid := ClientId}, ConnInfo, _Env) ->
     brod:produce_sync(brod_client_1, <<"linkstatus">>, PartitionFun, <<>>, Json).
 
 on_client_disconnected(ClientInfo = #{clientid := ClientId}, ReasonCode, ConnInfo, _Env) ->
-    io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
-              [ClientId, ReasonCode, ClientInfo, ConnInfo]),
+    % io:format("Client(~s) disconnected due to ~p, ClientInfo:~n~p~n, ConnInfo:~n~p~n",
+    %           [ClientId, ReasonCode, ClientInfo, ConnInfo]),
     {M, S, _} = os:timestamp(),
     
     Json = jsx:encode([
@@ -309,9 +309,9 @@ unload() ->
     % emqx:unhook('session.takeovered',  {?MODULE, on_session_takeovered}),
     % emqx:unhook('session.terminated',  {?MODULE, on_session_terminated}),
     emqx:unhook('message.publish',     {?MODULE, on_message_publish}),
-    emqx:unhook('message.delivered',   {?MODULE, on_message_delivered}),
-    emqx:unhook('message.acked',       {?MODULE, on_message_acked}),
-    emqx:unhook('message.dropped',     {?MODULE, on_message_dropped}).
+    % emqx:unhook('message.delivered',   {?MODULE, on_message_delivered}),
+    % emqx:unhook('message.acked',       {?MODULE, on_message_acked}),
+    % emqx:unhook('message.dropped',     {?MODULE, on_message_dropped}).
 
 %% Init kafka server parameters
 % ekaf_init(_Env) ->
