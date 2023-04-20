@@ -246,10 +246,15 @@ on_message_publish(Message, _Env) ->
     % ]),
 
     % brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
-    if is_binary(Payload) of
+    case is_binary(Payload) of
         true ->
             % 如果 payload 是二进制数据，则将其发送到 "linkbytes" topic
-            brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Payload),
+            if ProduceTopic =:= <<"">> ->
+                ProduceTopic = <<"linkbytes">>;
+            true ->
+                ok
+            end,
+            brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Payload);
         false ->
             % 如果 payload 不是二进制数据，则进行其他操作
             Json = jsx:encode([
@@ -263,7 +268,9 @@ on_message_publish(Message, _Env) ->
                 {ts,Timestamp}
             ]),
             brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json)
-    end,
+    end.
+
+
     % ekaf:produce_async(ProduceTopic, Json),
     % ekaf:produce_async(Topic, Payload),
     {ok, Message}.
