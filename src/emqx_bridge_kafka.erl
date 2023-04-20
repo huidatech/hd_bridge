@@ -247,9 +247,9 @@ on_message_publish(Message, _Env) ->
 
     % brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
 
-    case is_binary(Payload) of
+    case erlang:is_binary(Payload) of
         true ->
-            case is_list(binary_to_list(Payload)) of
+            case erlang:is_list(erlang:binary_to_list(Payload)) of
                 true ->
                     Json = jsx:encode([
                                 {type,<<"publish">>},
