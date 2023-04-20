@@ -261,10 +261,10 @@ on_message_publish(Message, _Env) ->
                                 {cluster_node,node()},
                                 {ts,Timestamp}
                             ]),
-                    brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json)
+                    brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
                 false ->
                     % Payload 不是一个字符串
-                    brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Payload);
+                    brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Payload),
             end,
         false ->
             % Payload 不是一个二进制数据
@@ -278,7 +278,7 @@ on_message_publish(Message, _Env) ->
                                 {cluster_node,node()},
                                 {ts,Timestamp}
                             ]),
-            brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json)
+            brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
     end,
     % ekaf:produce_async(ProduceTopic, Json),
     % ekaf:produce_async(Topic, Payload),
