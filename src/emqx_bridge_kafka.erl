@@ -261,7 +261,7 @@ on_message_publish(Message, _Env) ->
                                 {cluster_node,node()},
                                 {ts,Timestamp}
                             ]),
-                    brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
+                    brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json);
                 false ->
                     brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Payload),
             end,
