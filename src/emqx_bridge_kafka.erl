@@ -246,7 +246,7 @@ on_message_publish(Message, _Env) ->
     % ]),
 
     % brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
-    case is_binary(Payload) of
+    if is_binary(Payload) of
         true ->
             % 如果 payload 是二进制数据，则将其发送到 "linkbytes" topic
             brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Payload),
@@ -267,6 +267,7 @@ on_message_publish(Message, _Env) ->
     % ekaf:produce_async(ProduceTopic, Json),
     % ekaf:produce_async(Topic, Payload),
     {ok, Message}.
+
 
 
 on_message_dropped(#message{topic = <<"$SYS/", _/binary>>}, _By, _Reason, _Env) ->
