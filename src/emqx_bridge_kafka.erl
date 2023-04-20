@@ -225,28 +225,45 @@ on_message_publish(Message, _Env) ->
             ProduceTopic = proplists:get_value(kafka_producer_topic, KafkaTopic)
             % ProduceTopic = KafkaTopic
     end,
-
+    PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
+                {ok, crypto:rand_uniform(0, PartitionsCount)}
+                end,
     Payload=Message#message.payload,
     Qos=Message#message.qos,
     From=Message#message.from,
     % Headers=Message#message.headers#username,
     Username=maps:get(username,Message#message.headers),
     Timestamp=Message#message.timestamp,
-    Json = jsx:encode([
-            {type,<<"publish">>},
-            {topic,Topic},
-            {payload,Payload},
-            {qos,Qos},
-            {clientid,From},
-            {username,Username},
-            {cluster_node,node()},
-            {ts,Timestamp}
-    ]),
-    PartitionFun = fun(_Topic, PartitionsCount, _Key, _Value) ->
-                {ok, crypto:rand_uniform(0, PartitionsCount)}
-                end,
-    brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
+    % Json = jsx:encode([
+    %         {type,<<"publish">>},
+    %         {topic,Topic},
+    %         {payload,Payload},
+    %         {qos,Qos},
+    %         {clientid,From},
+    %         {username,Username},
+    %         {cluster_node,node()},
+    %         {ts,Timestamp}
+    % ]),
 
+    % brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
+    case is_binary(Payload) of
+        true ->
+            % 如果 payload 是二进制数据，则将其发送到 "linkbytes" topic
+            brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Payload),
+        false ->
+            % 如果 payload 不是二进制数据，则进行其他操作
+            Json = jsx:encode([
+                {type,<<"publish">>},
+                {topic,Topic},
+                {payload,Payload},
+                {qos,Qos},
+                {clientid,From},
+                {username,Username},
+                {cluster_node,node()},
+                {ts,Timestamp}
+            ]),
+            brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json)
+    end,
     % ekaf:produce_async(ProduceTopic, Json),
     % ekaf:produce_async(Topic, Payload),
     {ok, Message}.
