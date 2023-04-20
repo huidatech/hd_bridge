@@ -246,7 +246,7 @@ on_message_publish(Message, _Env) ->
     % ]),
 
     % brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
-    case is_binary(Payload) of
+    case erlang:is_binary(Payload) of
         true ->
             % 如果 payload 是二进制数据，则将其发送到 "linkbytes" topic
             if ProduceTopic =:= <<"">> ->
