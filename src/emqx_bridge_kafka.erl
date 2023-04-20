@@ -201,7 +201,15 @@ on_message_publish(Message = #message{topic = <<"$SYS/", _/binary>>}, _Env) ->
 %% on_message_publish(Message, _Env) ->
 %%     io:format("Publish ~s~n", [emqx_message:format(Message)]),
 %%     {ok, Message}.
-
+is_binary_or_string(Payload) ->
+    case erlang:is_binary(Payload) of
+        true ->
+            case unicode:characters_to_list(Payload) of
+                {ok, _Decoded} -> string;
+                {error, _, _} -> binary
+            end;
+        false -> string
+    end.
 on_message_publish(Message, _Env) ->
     % io:format("Publish ~s~n", [emqx_message:format(Message)]),
     {ok, KafkaTopic} = application:get_env(emqx_bridge_kafka, values),
@@ -246,25 +254,23 @@ on_message_publish(Message, _Env) ->
     % ]),
 
     % brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json),
+    DataType = is_binary_or_string(Payload),
 
-    case erlang:is_binary(Payload) of
-        true ->
-            case erlang:is_list(erlang:binary_to_list(Payload)) of
-                true ->
-                    Json = jsx:encode([
-                                {type,<<"publish">>},
-                                {topic,Topic},
-                                {payload,Payload},
-                                {qos,Qos},
-                                {clientid,From},
-                                {username,Username},
-                                {cluster_node,node()},
-                                {ts,Timestamp}
-                            ]),
-                    brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json);
-                false ->
-                    brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Payload);
-            end;
+    case DataType of
+        string ->
+            Json = jsx:encode([
+                {type, <<"publish">>},
+                {topic, Topic},
+                {payload, Payload},
+                {qos, Qos},
+                {clientid, From},
+                {username, Username},
+                {cluster_node, node()},
+                {ts, Timestamp}
+            ]),
+            brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json);
+        binary ->
+            brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Json)
     end,
     % ekaf:produce_async(ProduceTopic, Json),
     % ekaf:produce_async(Topic, Payload),
