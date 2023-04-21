@@ -263,7 +263,7 @@ on_message_publish(Message, _Env) ->
                     brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Json);
                 {error, _, _} -> 
                     brod:produce_sync(brod_client_1, <<"linkbytes">>, PartitionFun, <<>>, Payload)          
-            end,
+            end
     end,
     % ekaf:produce_async(ProduceTopic, Json),
     % ekaf:produce_async(Topic, Payload),
