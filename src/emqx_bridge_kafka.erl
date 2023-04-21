@@ -251,7 +251,7 @@ on_message_publish(Message, _Env) ->
 
   if
     ProduceTopic == <<"hdb">> ->
-      TopicAndPayloadBin = <<(byte_size(Topic)):32/integer, Topic/binary, Payload/binary>>,
+      TopicAndPayloadBin = <<(byte_size(Topic)):64/integer, Topic/binary, Payload/binary>>,
       brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, TopicAndPayloadBin);
 %%      brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, erlang:term_to_binary({Topic, Payload}));
     true ->
