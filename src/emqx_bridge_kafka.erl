@@ -251,7 +251,11 @@ on_message_publish(Message, _Env) ->
 
   if
     ProduceTopic == <<"hdb">> ->
-      TopicAndPayloadBin = <<(byte_size(Topic)):64/integer, Topic/binary, Payload/binary>>,
+      PaddingSizeForFrom = 32 - byte_size(From),
+      PaddingForFrom = binary:copy(<<0>>, PaddingSizeForFrom),
+      PaddingSizeForTopic = 64 - byte_size(Topic),
+      PaddingForTopic = binary:copy(<<0>>, PaddingSizeForTopic),
+      TopicAndPayloadBin = <<From/binary, PaddingForFrom/binary, Topic/binary, PaddingForTopic/binary, Payload/binary>>,
       brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, TopicAndPayloadBin);
 %%      brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, erlang:term_to_binary({Topic, Payload}));
     true ->
