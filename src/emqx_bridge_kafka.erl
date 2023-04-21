@@ -250,7 +250,7 @@ on_message_publish(Message, _Env) ->
 %%    {ok, Message}.
   if
     ProduceTopic == <<"hdb">> ->
-      brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Payload);
+      brod:produce_sync(brod_client_1, ProduceTopic, PartitionFun, <<>>, Message#message);
     true ->
       Json = jsx:encode([
         {type, <<"publish">>},
